@@ -4,10 +4,11 @@ const packageJSON = require('../../package.json')
 const designatedEntry = require('./entry-and-output')
 
 module.exports = {
+
     EnvironmentalScience: {
-    // path.resolve([from ...], to)
-    // 将 to 参数解析为绝对路径，给定的路径的序列是从右往左被处理的，后面每个 path 被依次解析，直到构造完成一个绝对路径。 例如，给定的路径片段的序列为：/foo、/bar、baz，则调用 path.resolve('/foo', '/bar', 'baz') 会返回 /bar/baz。
-    // contentBase 它指定了服务器资源的根目录，如果不写入contentBase的值，那么contentBase默认是项目的目录
+        // path.resolve([from ...], to)
+        // 将 to 参数解析为绝对路径，给定的路径的序列是从右往左被处理的，后面每个 path 被依次解析，直到构造完成一个绝对路径。 例如，给定的路径片段的序列为：/foo、/bar、baz，则调用 path.resolve('/foo', '/bar', 'baz') 会返回 /bar/baz。
+        // contentBase 它指定了服务器资源的根目录，如果不写入contentBase的值，那么contentBase默认是项目的目录
         contentBase: path.resolve(__dirname, `${designatedEntry.EnvironmentalScience.contentBase}`),
         // 指定要使用的主机ip地址 默认localhost
         host: localIp,

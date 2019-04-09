@@ -91,7 +91,8 @@
     "webpack-bundle-analyzer": "^2.13.1",
     "webpack-cli": "^3.1.0",
     "webpack-dev-server": "^3.1.6",
-    "webpack-merge": "^4.1.0"
+    "webpack-merge": "^4.1.0",
+    "webpack-parallel-uglify-plugin": "^1.1.0"
   },
   "engines": {
     "node": ">= 6.0.0",

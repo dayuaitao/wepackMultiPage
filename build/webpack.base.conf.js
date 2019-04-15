@@ -3,7 +3,10 @@ const path = require('path')
 
 const ParallelUglifyPlugin = require('webpack-parallel-uglify-plugin')
 
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 
+const webpack = require('webpack')
 // 使用插件之前需要先加载对应的plugin
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 // const HtmlWebpackPlugin = require('html-webpack-plugin')
@@ -12,6 +15,8 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin')
 // 打包目标目录清理插件
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const ImageminPlugin = require('imagemin-webpack-plugin').default
+
+const designatedEntry = require('./utils/entry-and-output')
 
 const os = require('os')
 const open_thread = os.cpus().length // 计划开启几个线程处理
@@ -28,9 +33,6 @@ const createHappyPlugin = (id, loaders) => new HappyPack({
     threadPool: happyThreadPool,
     verbose: process.env.HAPPY_VERBOSE === '1' // make happy more verbose with HAPPY_VERBOSE=1
 })
-
-
-
 
 const dev = process.env.SETTINGS_ENV === 'dev'
 // webpack动态打包入口 与 HtmlWebpackPlugin 动态编译
@@ -108,7 +110,38 @@ module.exports = {
                         reduce_vars: true
                     }
                 }
+            }),
+            new UglifyJsPlugin({
+                exclude: /\.min\.js$/, // 过滤掉以".min.js"结尾的文件，我们认为这个后缀本身就是已经压缩好的代码，没必要进行二次压缩
+                cache: true,
+                parallel: true, // 开启并行压缩，充分利用cpu
+                sourceMap: false,
+                extractComments: false, // 移除注释
+                uglifyOptions: {
+                    compress: {
+                        unused: true,
+                        warnings: false,
+                        drop_debugger: true
+                    },
+                    output: {
+                        comments: false
+                    }
+                }
+            }),
+            // 用于优化css文件
+            new OptimizeCssAssetsPlugin({
+                assetNameRegExp: /\.css$/g,
+                cssProcessorOptions: {
+                    safe: true,
+                    autoprefixer: { disable: true }, // 这里是个大坑，稍后会提到
+                    mergeLonghand: false,
+                    discardComments: {
+                        removeAll: true // 移除注释
+                    }
+                },
+                canPrint: true
             })
+
         ],
         // namedModules: true,       //Tells webpack to use readable module identifiers for better debugging. When optimization.namedModules is not set in webpack config, webpack will enable it by default for mode development and disable for mode production.
         noEmitOnErrors: true, // 在 webpack 编译代码出现错误时并不会退出 webpack
@@ -136,12 +169,26 @@ module.exports = {
                 },
                 vendor: {
                     test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    minSize: 30000,
+                    minChunks: 1,
                     chunks: 'initial',
-                    name: 'vendor',
-                    priority: 80,
-                    enforce: true
+                    priority: 1 // 该配置项是设置处理的优先级，数值越大越优先处理
+
+                    // test: /[\\/]node_modules[\\/]/,
+                    // chunks: 'initial',
+                    // name: 'vendor',
+                    // priority: 80,
+                    // enforce: true
                 },
                 common: {
+                    // test: /[\\/]src[\\/]common[\\/]/,
+                    // name: 'commons',
+                    // minSize: 30000,
+                    // minChunks: 3,
+                    // chunks: 'initial',
+                    // priority: -1,
+                    // reuseExistingChunk: true // 这个配置允许我们使用已经存在的代码块
                     name: 'common',
                     chunks: 'initial',
                     minChunks: 3,
@@ -204,10 +251,12 @@ module.exports = {
                 options: {
                     limit: 1024 * 5, // 对 5KB 以下文件进行处理（⚠️ ！ 但是会被打包到JS中）
                     fallback: {
-                        loader: 'file-loader',
-                        publicPath: dev ? `/${packageJSON.name}/` : `/${packageJSON.name}/dist`
+                        loader: 'file-loader'
+                        // publicPath: dev ? `/${packageJSON.name}/` : `/${packageJSON.name}/dist`
+                        // publicPath: designatedEntry.fileLoaderFontOutputPath
                     },
-                    outputPath: dev ? `src/assets/images` : `/assets/img`
+                    outputPath: 'src/assets/images'
+                    // outputPath: dev ? `src/assets/images` : `/assets/img`
 
                 }
             }]
@@ -254,6 +303,8 @@ module.exports = {
     },
     // 插件，用于生成模板和其它功能
     plugins: [
+        new webpack.HotModuleReplacementPlugin(),
+        new webpack.NamedModulesPlugin(),
         // 打包目标目录清理插件
         new CleanWebpackPlugin(
             ['../dist/**/*', '../dist/assets/css/*.css', '../dist/assets/scripts/*.js', '../dist/assets/img/*', '../dist/assets/js/*'], {

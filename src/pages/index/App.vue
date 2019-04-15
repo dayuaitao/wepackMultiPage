@@ -1,13 +1,23 @@
 <template>
   <div id="app">
     2222
-
+     <img :src='imgcs'/>>
+          <img src='../../../static/noprivilege.png'/>>
   </div>
 </template>
 
 <script>
+
 export default {
-    name: 'App'
+    name: 'App',
+    data () {
+        return {
+            imgcs: require('../../assets/images/noprivilege.png')
+        }
+    },
+    components: {
+        testComponent: require('../../components/HelloWorld').default
+    }
 }
 </script>
 

@@ -1,12 +1,12 @@
 // webpack.config.js
 const path = require('path')
 
-const ParallelUglifyPlugin = require('webpack-parallel-uglify-plugin');
+const ParallelUglifyPlugin = require('webpack-parallel-uglify-plugin')
 
 
 // 使用插件之前需要先加载对应的plugin
 const CleanWebpackPlugin = require('clean-webpack-plugin')
-    // const HtmlWebpackPlugin = require('html-webpack-plugin')
+// const HtmlWebpackPlugin = require('html-webpack-plugin')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
 // 打包目标目录清理插件
@@ -15,7 +15,7 @@ const ImageminPlugin = require('imagemin-webpack-plugin').default
 
 const os = require('os')
 const open_thread = os.cpus().length // 计划开启几个线程处理
-    // 引入HappyPack插件
+// 引入HappyPack插件
 const HappyPack = require('happypack')
 const happyThreadPool = HappyPack.ThreadPool({ size: open_thread }) // happypack多个实例的时候，共享线程池，以达到资源的最小消耗
 const createHappyPlugin = (id, loaders) => new HappyPack({
@@ -27,13 +27,13 @@ const createHappyPlugin = (id, loaders) => new HappyPack({
     verbose: true, // 允许 HappyPack 输出日志 ,默认true
     threadPool: happyThreadPool,
     verbose: process.env.HAPPY_VERBOSE === '1' // make happy more verbose with HAPPY_VERBOSE=1
-});
+})
 
 
 
 
 const dev = process.env.SETTINGS_ENV === 'dev'
-    // webpack动态打包入口 与 HtmlWebpackPlugin 动态编译
+// webpack动态打包入口 与 HtmlWebpackPlugin 动态编译
 const { entryPlugin } = require('./utils/entry-plugin')
 const { entry, htmlWebpackPlugins } = entryPlugin()
 
@@ -92,7 +92,7 @@ module.exports = {
     optimization: {
         minimize: !dev, // 告诉webpack使用UglifyjsWebpackPlugin最小化捆绑包。
 
-        //webpack-parallel-uglify-plugin 能够把任务分解给多个子进程去并发的执行，子进程处理完后再把结果发送给主进程，从而实现并发编译，进而大幅提升js压缩速度
+        // webpack-parallel-uglify-plugin 能够把任务分解给多个子进程去并发的执行，子进程处理完后再把结果发送给主进程，从而实现并发编译，进而大幅提升js压缩速度
         minimizer: [
             new ParallelUglifyPlugin({ // 多进程压缩
                 cacheDir: '.cache/',
@@ -108,7 +108,7 @@ module.exports = {
                         reduce_vars: true
                     }
                 }
-            }),
+            })
         ],
         // namedModules: true,       //Tells webpack to use readable module identifiers for better debugging. When optimization.namedModules is not set in webpack config, webpack will enable it by default for mode development and disable for mode production.
         noEmitOnErrors: true, // 在 webpack 编译代码出现错误时并不会退出 webpack
@@ -128,11 +128,11 @@ module.exports = {
                     chunks: 'initial', // initial(初始块)、async(按需加载块)、all(全部块)，默认为all;
                     priority: 100, // 该配置项是设置处理的优先级，数值越大越优先处理
                     enforce: true // 如果cacheGroup中没有设置minSize，则据此判断是否使用上层的minSize，true：则使用0，false：使用上层minSize
-                        // minSize: 1024*10,                 //表示在压缩前的最小模块大小，默认为0；
-                        // minChunks: 1,                     //表示被引用次数，默认为1；
-                        // maxAsyncRequests:                 //最大的按需(异步)加载次数，默认为1；
-                        // maxInitialRequests:               //最大的初始化加载次数，默认为1；
-                        // reuseExistingChunk: true          //表示可以使用已经存在的块，即如果满足条件的块已经存在就使用已有的，不再创建一个新的块。
+                    // minSize: 1024*10,                 //表示在压缩前的最小模块大小，默认为0；
+                    // minChunks: 1,                     //表示被引用次数，默认为1；
+                    // maxAsyncRequests:                 //最大的按需(异步)加载次数，默认为1；
+                    // maxInitialRequests:               //最大的初始化加载次数，默认为1；
+                    // reuseExistingChunk: true          //表示可以使用已经存在的块，即如果满足条件的块已经存在就使用已有的，不再创建一个新的块。
                 },
                 vendor: {
                     test: /[\\/]node_modules[\\/]/,
@@ -165,61 +165,61 @@ module.exports = {
         // 解析与给定正则表达式匹配的任何文件
         // 配置模块loaders，解析规则
         rules: [{
-                // vue 正则表达式，匹配编译的文件
-                test: /\.vue$/,
-                // 排除特定条件，如通常会写node_modules，即把某些目录/文件过滤掉
-                exclude: /node_modules/,
-                // 它正好与exclude相反
-                include: [
-                    path.resolve(__dirname, '../')
-                ],
-                use: ['cache-loader', 'thread-loader',
-                    {
-                        // 必须要有它，它相当于是一个 test 匹配到的文件对应的解析器，babel-loader、style-loader、sass-loader、url-loader等等
-                        loader: 'vue-loader',
-                        // 它与loader配合使用，可以是一个字符串或对象，它的配置可以直接简写在loader内一起，它下面还有presets、plugins等属性
-                        options: {
-                            loaders: {
-                                js: 'happypack/loader?id=babel'
-                            }
+            // vue 正则表达式，匹配编译的文件
+            test: /\.vue$/,
+            // 排除特定条件，如通常会写node_modules，即把某些目录/文件过滤掉
+            exclude: /node_modules/,
+            // 它正好与exclude相反
+            include: [
+                path.resolve(__dirname, '../')
+            ],
+            use: ['cache-loader', 'thread-loader',
+                {
+                    // 必须要有它，它相当于是一个 test 匹配到的文件对应的解析器，babel-loader、style-loader、sass-loader、url-loader等等
+                    loader: 'vue-loader',
+                    // 它与loader配合使用，可以是一个字符串或对象，它的配置可以直接简写在loader内一起，它下面还有presets、plugins等属性
+                    options: {
+                        loaders: {
+                            js: 'happypack/loader?id=babel'
                         }
                     }
-                ]
-            },
-            {
-                test: /\.js$/,
-                use: [{ loader: 'cache-loader' }, 'happypack/loader?id=babel'],
-                exclude: /node_modules/,
-                include: /(src|node_modules\/flv.js)/,
-                // include: [
-                //     path.resolve(__dirname, '../')
-                // ]
-            },
-            {
-                test: /\.(png|svg|jpg|jpeg|gif|woff|woff2|eot|ttf|otf)$/,
-                exclude: /node_modules/,
-                include: path.resolve(__dirname, '../'),
-                use: [{
-                    loader: 'url-loader', // 对于一些较小的文件采用base64编码
-                    options: {
-                        limit: 1024 * 5, // 对 5KB 以下文件进行处理（⚠️ ！ 但是会被打包到JS中）
-                        fallback: {
-                            loader: 'file-loader',
-                            publicPath: dev ? `/${packageJSON.name}/` : `/${packageJSON.name}/dist`
-                        },
-                        outputPath: dev ? `src/assets/images` : `/assets/img`
+                }
+            ]
+        },
+        {
+            test: /\.js$/,
+            use: [{ loader: 'cache-loader' }, 'happypack/loader?id=babel'],
+            exclude: /node_modules/,
+            include: /(src|node_modules\/flv.js)/
+            // include: [
+            //     path.resolve(__dirname, '../')
+            // ]
+        },
+        {
+            test: /\.(png|svg|jpg|jpeg|gif|woff|woff2|eot|ttf|otf)$/,
+            exclude: /node_modules/,
+            include: path.resolve(__dirname, '../'),
+            use: [{
+                loader: 'url-loader', // 对于一些较小的文件采用base64编码
+                options: {
+                    limit: 1024 * 5, // 对 5KB 以下文件进行处理（⚠️ ！ 但是会被打包到JS中）
+                    fallback: {
+                        loader: 'file-loader',
+                        publicPath: dev ? `/${packageJSON.name}/` : `/${packageJSON.name}/dist`
+                    },
+                    outputPath: dev ? `src/assets/images` : `/assets/img`
 
-                    }
-                }]
-            },
+                }
+            }]
+        },
             // html转换配置
-            {
-                test: /\.html$/,
-                use: [{
-                    loader: 'html-loader', // 模块上下文解析
-                    options: { // loader的可选项
-                        interpolate: true,
-                        /*
+        {
+            test: /\.html$/,
+            use: [{
+                loader: 'html-loader', // 模块上下文解析
+                options: { // loader的可选项
+                    interpolate: true,
+                    /*
                 html-loader 接受 attrs 参数，表示什么标签的什么属性需要调用 webpack 的 loader 进行打包。
                 比如 <img> 标签的 src 属性，webpack 会把 <img> 引用的图片打包，然后 src 的属性值替换为打包后的路径。
                 使用什么 loader 代码，同样是在 module.rules 定义中使用匹配的规则。
@@ -227,29 +227,29 @@ module.exports = {
                 如果 html-loader 不指定 attrs 参数，默认值是 img:src, 意味着会默认打包 <img> 标签的图片。
                 这里我们加上 <link> 标签的 href 属性，用来打包入口 index.html 引入的 favicon.png 文件。
               */
-                        attrs: ['img:src', 'link:href']
+                    attrs: ['img:src', 'link:href']
+                }
+            }]
+        },
+        {
+            // vue样式转换
+            test: /\.css$/,
+            use: [
+                dev ? 'style-loader' : {
+                    loader: MiniCssExtractPlugin.loader
+                },
+                {
+                    loader: 'css-loader',
+                    options: {
+                        modules: true,
+                        importLoaders: 1,
+                        getLocalIdent: (context, localIdentName, localName) => localName
                     }
-                }]
-            },
-            {
-                // vue样式转换
-                test: /\.css$/,
-                use: [
-                    dev ? 'style-loader' : {
-                        loader: MiniCssExtractPlugin.loader
-                    },
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            modules: true,
-                            importLoaders: 1,
-                            getLocalIdent: (context, localIdentName, localName) => localName
-                        }
-                    },
-                    'postcss-loader'
-                ]
+                },
+                'postcss-loader'
+            ]
 
-            }
+        }
         ]
     },
     // 插件，用于生成模板和其它功能

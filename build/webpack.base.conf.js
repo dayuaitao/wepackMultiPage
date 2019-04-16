@@ -6,6 +6,8 @@ const ParallelUglifyPlugin = require('webpack-parallel-uglify-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+
 const webpack = require('webpack')
 // 使用插件之前需要先加载对应的plugin
 const CleanWebpackPlugin = require('clean-webpack-plugin')
@@ -15,8 +17,6 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin')
 // 打包目标目录清理插件
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const ImageminPlugin = require('imagemin-webpack-plugin').default
-
-const designatedEntry = require('./utils/entry-and-output')
 
 const os = require('os')
 const open_thread = os.cpus().length // 计划开启几个线程处理
@@ -174,7 +174,6 @@ module.exports = {
                     minChunks: 1,
                     chunks: 'initial',
                     priority: 1 // 该配置项是设置处理的优先级，数值越大越优先处理
-
                     // test: /[\\/]node_modules[\\/]/,
                     // chunks: 'initial',
                     // name: 'vendor',
@@ -182,18 +181,18 @@ module.exports = {
                     // enforce: true
                 },
                 common: {
-                    // test: /[\\/]src[\\/]common[\\/]/,
-                    // name: 'commons',
-                    // minSize: 30000,
-                    // minChunks: 3,
-                    // chunks: 'initial',
-                    // priority: -1,
-                    // reuseExistingChunk: true // 这个配置允许我们使用已经存在的代码块
-                    name: 'common',
-                    chunks: 'initial',
+                    test: /[\\/]src[\\/]common[\\/]/,
+                    name: 'commons',
+                    minSize: 30000,
                     minChunks: 3,
-                    priority: 70,
-                    enforce: true
+                    chunks: 'initial',
+                    priority: -1,
+                    reuseExistingChunk: true // 这个配置允许我们使用已经存在的代码块
+                    // name: 'common',
+                    // chunks: 'initial',
+                    // minChunks: 3,
+                    // priority: 70,
+                    // enforce: true
                 },
                 default: {
                     minChunks: 2,
@@ -202,7 +201,6 @@ module.exports = {
                 }
             }
         }
-
     },
     // 模块，可以使用各种loader，比如css转换，图片压缩等
     // 模块相关配置
@@ -251,12 +249,10 @@ module.exports = {
                 options: {
                     limit: 1024 * 5, // 对 5KB 以下文件进行处理（⚠️ ！ 但是会被打包到JS中）
                     fallback: {
-                        loader: 'file-loader'
-                        // publicPath: dev ? `/${packageJSON.name}/` : `/${packageJSON.name}/dist`
-                        // publicPath: designatedEntry.fileLoaderFontOutputPath
+                        loader: 'file-loader',
+                        publicPath: dev ? `src/assets/images` : `/${packageJSON.name}/dist/assets/img`
                     },
-                    outputPath: 'src/assets/images'
-                    // outputPath: dev ? `src/assets/images` : `/assets/img`
+                    outputPath: dev ? `src/assets/images` : `/assets/img`
 
                 }
             }]
@@ -305,6 +301,7 @@ module.exports = {
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NamedModulesPlugin(),
+        new BundleAnalyzerPlugin(),
         // 打包目标目录清理插件
         new CleanWebpackPlugin(
             ['../dist/**/*', '../dist/assets/css/*.css', '../dist/assets/scripts/*.js', '../dist/assets/img/*', '../dist/assets/js/*'], {

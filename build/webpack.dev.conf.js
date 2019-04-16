@@ -9,6 +9,7 @@ const utilsServer = require('./utils/server')
 const envConfig = {
     mode: 'development',
     devtool: 'source-map', // 开启调试
+    // devtool:'cheap-module-eval-source-map',
     devServer: utilsServer.EnvironmentalScience,
     // output 配置文档 https://webpack.js.org/configuration/output/
 
